@@ -53,22 +53,32 @@ class HomePage extends StatelessWidget {
         >= 2 => Paragraph('${appState.attendees} people going'),
         _ => const Paragraph('No one going'),
       },
-
       if (appState.loggedIn) ...[
         YesNoSelection(
           state: appState.attending,
-          onSelection: (attending) => appState.attending = attending,
+          attendees: appState.attendees, 
+          onSelection: (attending) {
+            appState.attending = attending; 
+          },
+          onAttendeesChanged: (newAttendees) {
+            appState.attendees = newAttendees;
+            if (newAttendees > 0) {
+              appState.attending = Attending.yes; 
+            } else {
+              appState.attending = Attending.no;
+            }
+          },
         ),
         const Header('Discussion'),
         GuestBook(
-          addMessage: (message) =>
-              appState.addMessageToGuestBook(message),
-          messages: appState.guestBookMessages, // new
+          addMessage: (message) => appState.addMessageToGuestBook(message),
+          messages: appState.guestBookMessages,
         ),
       ],
     ],
   ),
 ),
+
         ],
       ),
     );

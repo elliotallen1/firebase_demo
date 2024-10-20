@@ -18,11 +18,17 @@ class ApplicationState extends ChangeNotifier {
   }
 
   int _attendees = 0;
-int get attendees => _attendees;
+  int get attendees => _attendees;
+  
+  set attendees(int count) {
+    _attendees = count;
+    notifyListeners(); 
+  }
 
-Attending _attending = Attending.unknown;
-StreamSubscription<DocumentSnapshot>? _attendingSubscription;
-Attending get attending => _attending;
+  Attending _attending = Attending.unknown;
+  StreamSubscription<DocumentSnapshot>? _attendingSubscription;
+  Attending get attending => _attending;
+
 set attending(Attending attending) {
   final userDoc = FirebaseFirestore.instance
       .collection('attendees')
