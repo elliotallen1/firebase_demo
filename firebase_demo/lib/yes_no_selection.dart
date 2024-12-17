@@ -1,68 +1,52 @@
 import 'package:flutter/material.dart';
-
 import 'app_state.dart';
-import 'src/widgets.dart';
 
 class YesNoSelection extends StatelessWidget {
-  const YesNoSelection(
-      {super.key, required this.state, required this.onSelection});
+  const YesNoSelection({
+    super.key,
+    required this.state,
+    required this.onSelection,
+    required this.attendees,
+    required this.onAttendeesChanged,
+  });
+
   final Attending state;
   final void Function(Attending selection) onSelection;
+  final int attendees;
+  final void Function(int newAttendees) onAttendeesChanged;
 
   @override
   Widget build(BuildContext context) {
-    switch (state) {
-      case Attending.yes:
-        return Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Row(
-            children: [
-              FilledButton(
-                onPressed: () => onSelection(Attending.yes),
-                child: const Text('YES'),
-              ),
-              const SizedBox(width: 8),
-              TextButton(
-                onPressed: () => onSelection(Attending.no),
-                child: const Text('NO'),
-              ),
-            ],
-          ),
-        );
-      case Attending.no:
-        return Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Row(
-            children: [
-              TextButton(
-                onPressed: () => onSelection(Attending.yes),
-                child: const Text('YES'),
-              ),
-              const SizedBox(width: 8),
-              FilledButton(
-                onPressed: () => onSelection(Attending.no),
-                child: const Text('NO'),
-              ),
-            ],
-          ),
-        );
-      default:
-        return Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Row(
-            children: [
-              StyledButton(
-                onPressed: () => onSelection(Attending.yes),
-                child: const Text('YES'),
-              ),
-              const SizedBox(width: 8),
-              StyledButton(
-                onPressed: () => onSelection(Attending.no),
-                child: const Text('NO'),
-              ),
-            ],
-          ),
-        );
+    final TextEditingController controller = TextEditingController(text: attendees.toString());
+
+    void handleInput() {
+      final input = int.tryParse(controller.text);
+      if (input != null && input >= 0) {
+        onAttendeesChanged(input); 
+        onSelection(input > 0 ? Attending.yes : Attending.no); 
+      }
     }
+
+    return Column(
+        children: [
+          const Text("How many people will be attending?"),
+          Row(
+            children: [
+          Expanded(
+            child: TextField(
+              controller: controller,
+              keyboardType: TextInputType.number,
+              onSubmitted: (_) => handleInput(),
+            ),
+          ),
+          const SizedBox(width: 8),
+          ElevatedButton(
+            onPressed: handleInput,
+            child: const Text('Submit'),
+          ),
+          ],
+        ),
+        ],
+      );
   }
 }
