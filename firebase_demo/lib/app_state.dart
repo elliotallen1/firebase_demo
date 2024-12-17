@@ -33,11 +33,22 @@ set attending(Attending attending) {
   final userDoc = FirebaseFirestore.instance
       .collection('attendees')
       .doc(FirebaseAuth.instance.currentUser!.uid);
+
   if (attending == Attending.yes) {
-    userDoc.set(<String, dynamic>{'attending': true});
+    userDoc.set(<String, dynamic>{
+      'attending': true,
+      'attendees': _attendees, 
+    });
   } else {
-    userDoc.set(<String, dynamic>{'attending': false});
+    userDoc.set(<String, dynamic>{
+      'attending': false,
+      'attendees': 0, 
+    });
+    _attendees = 0; 
   }
+
+  _attending = attending;
+  notifyListeners();
 }
 
   bool _loggedIn = false;
@@ -60,7 +71,11 @@ set attending(Attending attending) {
         .where('attending', isEqualTo: true)
         .snapshots()
         .listen((snapshot) {
-      _attendees = snapshot.docs.length;
+      int totalAttendees = 0;
+      for (final doc in snapshot.docs) {
+        totalAttendees += (doc.data()['attendees'] ?? 0) as int;
+      }
+      _attendees = totalAttendees;
       notifyListeners();
     });
     
@@ -91,11 +106,14 @@ set attending(Attending attending) {
           if (snapshot.data() != null) {
             if (snapshot.data()!['attending'] as bool) {
               _attending = Attending.yes;
+              _attendees = snapshot.data()?['attendees'] ?? 0;
             } else {
               _attending = Attending.no;
+              _attendees = 0;
             }
           } else {
             _attending = Attending.unknown;
+            _attendees = 0;
           }
           notifyListeners();
         });
